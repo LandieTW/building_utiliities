@@ -17,7 +17,7 @@ this_path = os.path.dirname(__file__)
 
 # Extensions considered as video files
 VIDEO_EXTENSIONS = {"mp4", "mkv", "mov", "avi", "webm", "flv", "m4v", "wmv", 
-                    "mpg", "mpeg"}
+                    "mpg", "mpeg", "ts"}
 
 
 def get_fps(input_path):
@@ -38,8 +38,9 @@ def get_fps(input_path):
     fps_str = result.stdout.strip()
     
     if '/' in fps_str:
-        num, den = fps_str.split('/')
-        num, den = int(num), int(den)
+        num_str, den_str = fps_str.split('/', 1)
+        num = int(num_str)
+        den = int(den_str)
         if den == 0:
             return None
         return num / den
@@ -60,7 +61,7 @@ def hvec_by_ffmeg(input_file, crf=28):
 
     input_path = os.path.join(this_path, input_file)
 
-    output_name, output_extension = input_file.split(".")
+    output_name, output_extension = input_file.rsplit(".", 1)
     output_file = output_name + "_compressed." + output_extension
     output_path = os.path.join(this_path, output_file)
 
@@ -69,7 +70,6 @@ def hvec_by_ffmeg(input_file, crf=28):
     commands = [
         'ffmpeg',
         "-fflags", "+genpts",
-        '-loglevel', 'error',
         '-i', input_path,
         '-r', str(fps),
         '-c:v', 'libx265',
